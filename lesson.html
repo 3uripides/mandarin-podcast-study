@@ -12,7 +12,7 @@
   <div class="wrap" id="lesson-root">
     <div class="lesson-head">
       <div>
-        <a href="index.html">&larr; All lessons</a>
+        <a href="index.html">&larr; All lessons</a> &middot; <a id="transcript-link" href="transcript.html">Transcript</a>
         <h1 id="lesson-title">Loading...</h1>
         <div class="muted" id="lesson-stats"></div>
       </div>
@@ -58,6 +58,24 @@
     <p class="muted" style="margin-top:24px">Shortcuts: Space play/pause - R replay - L loop - S slow - Left/Right prev/next - M record - 1/2/3 chars/pinyin/English - W save word - T save sentence</p>
   </div>
 
+  <!-- fixed episode player: seek anywhere across the whole lesson -->
+  <div class="playbar" id="playbar" role="region" aria-label="Episode player">
+    <div class="pb-row">
+      <button id="bar-prev" type="button" aria-label="Previous line" title="Previous line (Left)">&#9664;&#9664;</button>
+      <button id="bar-play" type="button" class="pb-play" aria-label="Play" title="Play / pause (Space)">&#9654;</button>
+      <button id="bar-next" type="button" aria-label="Next line" title="Next line (Right)">&#9654;&#9654;</button>
+      <span class="pb-time" id="bar-time">0:00 / 0:00</span>
+      <span class="pb-rem" id="bar-rem">-0:00</span>
+    </div>
+    <div class="pb-seek" id="seek" role="slider" tabindex="0" aria-label="Lesson position"
+         aria-valuemin="0" aria-valuemax="0" aria-valuenow="0" aria-valuetext="0:00">
+      <div class="pb-track"><div class="pb-fill" id="seek-fill"></div><div class="pb-thumb" id="seek-thumb"></div></div>
+      <div class="pb-ticks" id="seek-ticks"></div>
+    </div>
+  </div>
+
+  <audio id="ep" preload="auto"></audio>
+  <audio id="clipaudio" preload="auto"></audio>
   <script src="shim.js"></script>
   <script src="app.js"></script>
 </body>

@@ -66,7 +66,10 @@
       }
       return `<li class="lesson-card"><div><div class="title"><a href="lesson.html?n=${x.lesson}">Lesson ${x.lesson}: ${esc(x.title)}</a></div>
         <div class="meta">${plural(x.practiced_count, 'line', 'lines')} practiced · ${plural(x.saved_words, 'word', 'words')} · ${plural(x.saved_sentences, 'sentence', 'sentences')} saved</div></div>
-        <div><span class="badge ${cls}">${x.status}</span></div></li>`;
+        <div class="row-links"><span class="badge ${cls}">${x.status}</span>
+          <a href="transcript.html?n=${x.lesson}">Transcript</a>
+          ${window.MQ_DEMO ? '' : `<a href="api/export.apkg?auto=1&amp;lesson=${x.lesson}" download>Deck</a>`}
+        </div></li>`;
     }).join('');
     const exLesson = $('#ex-lesson');
     data.lessons.filter((x) => x.processed).forEach((x) => {
@@ -117,8 +120,9 @@
 
   // ---------- lesson page ----------
   const P = { chars: false, pinyin: true, english: true, zhOnly: false, loop: false, slow: false, autoPause: false, autoAdv: false };
-  const full = new Audio();   // whole episode
-  const clip = new Audio();   // one sentence / word / recording
+  // whole episode and one sentence / word / recording; real <audio> elements on lesson.html
+  const full = document.getElementById('ep') || new Audio();
+  const clip = document.getElementById('clipaudio') || new Audio();
   full.preload = 'auto';
   clip.preload = 'auto';
   [full, clip].forEach((a) => { a.preservesPitch = true; a.mozPreservesPitch = true; a.webkitPreservesPitch = true; });
@@ -160,6 +164,12 @@
     const b = $('#play-btn');
     b.innerHTML = playing ? '&#10074;&#10074; Pause' : '&#9654; Play / resume episode';
     b.classList.toggle('on', playing);
+    const bp = $('#bar-play');
+    if (bp) {
+      bp.innerHTML = playing ? '&#10074;&#10074;' : '&#9654;';
+      bp.setAttribute('aria-label', playing ? 'Pause' : 'Play');
+    }
+    updateBar();
   }
 
   function updateCompare() {
@@ -441,11 +451,124 @@
     const nx = nextIdx(S.active, dir);
     if (nx < 0) return;
     if (S.mode === 'clip') playClip(nx);
-    else if (S.mode === 'episode' || S.mode === 'range') {
-      S.pausedAuto = false;
-      full.currentTime = cs()[nx].start;
-      setActive(nx, true);
-    } else setActive(nx, true);
+    else seekTo(cs()[nx].start);  // episode position moves with the line, same as the play bar
+  }
+
+  // ---------- play bar: whole-episode position ----------
+  const fmt = (s) => {
+    s = Math.max(0, Math.floor(s || 0));  // floor, same as transcript.js, so both pages agree
+    const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), x = s % 60;
+    return (h ? h + ':' + String(m).padStart(2, '0') : String(m)) + ':' + String(x).padStart(2, '0');
+  };
+  const episodeDur = () => (L && L.duration) || (Number.isFinite(full.duration) ? full.duration : 0);
+
+  // While a sentence clip plays, the bar shows chunk.start + clip time: "how far through the lesson".
+  function episodePos() {
+    if (S.mode === 'clip') {
+      const i = S.clipIdx >= 0 ? S.clipIdx : S.active;
+      return cs()[i].start + (clip.currentTime || 0);
+    }
+    return full.currentTime || 0;
+  }
+
+  let dragging = false, dragPos = 0;
+
+  function updateBar() {
+    if (!S || !L) return;
+    const dur = episodeDur();
+    const pos = Math.min(dragging ? dragPos : episodePos(), dur || Infinity);
+    $('#bar-time').textContent = fmt(pos) + ' / ' + fmt(dur);
+    $('#bar-rem').textContent = '-' + fmt(Math.max(0, dur - pos));
+    const pct = dur ? (pos / dur) * 100 : 0;
+    $('#seek-fill').style.width = pct + '%';
+    $('#seek-thumb').style.left = pct + '%';
+    const seek = $('#seek');
+    seek.setAttribute('aria-valuemax', String(Math.floor(dur)));
+    seek.setAttribute('aria-valuenow', String(Math.floor(pos)));
+    seek.setAttribute('aria-valuetext', fmt(pos) + ' of ' + fmt(dur));
+  }
+
+  function renderTicks() {
+    const dur = episodeDur();
+    if (!dur) return;
+    let html = '';
+    L.sections.forEach((sec) => {
+      html += `<i class="tick sec" style="left:${(cs()[sec.start].start / dur) * 100}%" title="${esc(sec.label)}"></i>`;
+    });
+    cs().forEach((c) => {
+      if (c.lang === 'zh') html += `<i class="tick zh" style="left:${(c.start / dur) * 100}%"></i>`;
+    });
+    $('#seek-ticks').innerHTML = html;
+  }
+
+  // Jump the whole-episode position. Keeps playing if it was playing; a clip is stopped.
+  function seekTo(t) {
+    const list = cs();
+    const dur = episodeDur();
+    const wasPlaying = (S.mode === 'clip' && !clip.paused) ||
+      ((S.mode === 'episode' || S.mode === 'range') && !full.paused);
+    clip.pause();
+    clearTimeout(S.resumeTimer);
+    S.pausedAuto = false;
+    S.clipDone = null;
+    S.mode = 'episode';
+    S.segFrom = 0;
+    S.segTo = list.length - 1;
+    t = Math.max(0, Math.min(t, dur || t));
+    setActive(idxAtTime(t), true);  // set the line first so the seek does not mark lines as played
+    full.currentTime = t;
+    if (wasPlaying) full.play().catch(fail);
+    updatePlayBtn();
+    updateNow();
+  }
+
+  function wireBar() {
+    const seekEl = $('#seek');
+    const fracOf = (e) => {
+      const r = seekEl.getBoundingClientRect();
+      return Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
+    };
+    seekEl.addEventListener('pointerdown', (e) => {
+      dragging = true;
+      seekEl.setPointerCapture(e.pointerId);
+      dragPos = fracOf(e) * episodeDur();
+      updateBar();
+    });
+    seekEl.addEventListener('pointermove', (e) => {
+      if (!dragging) return;
+      dragPos = fracOf(e) * episodeDur();
+      updateBar();
+    });
+    const finish = (e) => {
+      if (!dragging) return;
+      dragging = false;
+      if (e.type === 'pointerup') seekTo(dragPos);
+      else updateBar();
+    };
+    seekEl.addEventListener('pointerup', finish);
+    seekEl.addEventListener('pointercancel', finish);
+    seekEl.addEventListener('keydown', (e) => {
+      const dur = episodeDur();
+      if (!dur) return;
+      const cur = episodePos();
+      let t = null;
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') t = cur - 5;
+      else if (e.key === 'ArrowRight' || e.key === 'ArrowUp') t = cur + 5;
+      else if (e.key === 'Home') t = 0;
+      else if (e.key === 'End') t = dur;
+      if (t === null) return;
+      e.preventDefault();
+      e.stopPropagation();  // keep Left/Right from also moving line
+      seekTo(Math.max(0, Math.min(dur, t)));
+    });
+    $('#bar-play').addEventListener('click', togglePlay);
+    $('#bar-prev').addEventListener('click', () => step(-1));
+    $('#bar-next').addEventListener('click', () => step(1));
+    [full, clip].forEach((a) => {
+      a.addEventListener('timeupdate', updateBar);
+      a.addEventListener('seeked', updateBar);
+      a.addEventListener('loadedmetadata', updateBar);
+    });
   }
 
   function applyRate() {
@@ -793,6 +916,7 @@
       }
     });
 
+    wireBar();
     window.addEventListener('pagehide', flushProgress);
     document.addEventListener('visibilitychange', () => { if (document.hidden) flushProgress(); });
   }
@@ -834,7 +958,10 @@
     updatePlayBtn();
     renderSel();
     syncToggles();
+    $('#transcript-link').href = 'transcript.html?n=' + n;
+    renderTicks();
     wireLesson();
+    updateBar();
   }
 
   // ---------- boot ----------
