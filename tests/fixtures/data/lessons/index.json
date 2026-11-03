@@ -1,0 +1,12 @@
+[
+ {
+  "lesson": 900,
+  "title": "Fixture lesson (placeholder)",
+  "processed": true
+ },
+ {
+  "lesson": 901,
+  "title": "Unprocessed fixture lesson",
+  "processed": false
+ }
+]

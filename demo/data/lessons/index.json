@@ -1,0 +1,12 @@
+[
+ {
+  "lesson": 1,
+  "title": "Demo Lesson (placeholder content)",
+  "processed": true
+ },
+ {
+  "lesson": 2,
+  "title": "Another placeholder lesson",
+  "processed": false
+ }
+]

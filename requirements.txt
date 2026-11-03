@@ -1,0 +1,10 @@
+feedparser
+faster-whisper
+pypinyin
+jieba
+zhconv
+genanki
+argostranslate
+imageio-ffmpeg
+flask
+requests

@@ -1,0 +1,12 @@
+.venv/
+/data/
+*.mp3
+*.apkg
+*.db
+__pycache__/
+.pytest_cache/
+node_modules/
+*.pdf
+Manderin doc Build Plan.md
+!tests/fixtures/**/*.mp3
+!demo/**/*.mp3
