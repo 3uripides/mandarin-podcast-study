@@ -43,15 +43,16 @@
     const t = data.totals;
     $('#overall-bar').style.width = (t.lessons ? Math.round(100 * t.completed / t.lessons) : 0) + '%';
     $('#overall-stats').innerHTML = [
-      `<span><b>${t.completed}</b> of ${t.lessons} lessons completed</span>`,
-      `<span><b>${t.processed}</b> processed</span>`,
-      `<span><b>${t.practiced}</b> lines practiced</span>`,
-      `<span><b>${t.saved_words}</b> ${t.saved_words === 1 ? 'word' : 'words'} saved</span>`,
-      `<span><b>${t.saved_sentences}</b> ${t.saved_sentences === 1 ? 'sentence' : 'sentences'} saved</span>`,
-    ].join('');
+      ['Completed', t.completed, `of ${t.lessons}`],
+      ['Processed', t.processed, `of ${t.lessons}`],
+      ['Lines practiced', t.practiced, ''],
+      ['Words saved', t.saved_words, ''],
+      ['Sentences saved', t.saved_sentences, ''],
+    ].map(([k, v, s]) => `<div class="kpi"><span class="k">${k}</span><span class="v">${v}</span>${s ? `<span class="s">${s}</span>` : ''}</div>`).join('');
     const last = data.lessons.find((x) => x.lesson === data.last_lesson);
+    $('#overall-sub').textContent = last ? `Last studied: Lesson ${last.lesson}, ${last.title}` : 'Nothing studied yet.';
     if (last) {
-      $('#continue-slot').innerHTML = `<a href="lesson.html?n=${last.lesson}">Continue where you left off: Lesson ${last.lesson} - ${esc(last.title)} &rarr;</a>`;
+      $('#continue-slot').innerHTML = `<a href="lesson.html?n=${last.lesson}">Continue Lesson ${last.lesson} &rarr;</a>`;
     }
     const ul = $('#lesson-list');
     if (!data.lessons.length) {
@@ -62,7 +63,7 @@
       const cls = x.status.replace(/ /g, '-');
       if (!x.processed) {
         return `<li class="lesson-card off"><div><div class="title">Lesson ${x.lesson}: ${esc(x.title)}</div>
-          <div class="meta">not processed yet</div></div><div><span class="badge">not processed yet</span></div></li>`;
+          <div class="meta">not processed yet</div></div><div></div></li>`;
       }
       return `<li class="lesson-card"><div><div class="title"><a href="lesson.html?n=${x.lesson}">Lesson ${x.lesson}: ${esc(x.title)}</a></div>
         <div class="meta">${plural(x.practiced_count, 'line', 'lines')} practiced · ${plural(x.saved_words, 'word', 'words')} · ${plural(x.saved_sentences, 'sentence', 'sentences')} saved</div></div>
@@ -162,7 +163,7 @@
     const playing = (S.mode === 'clip' && !clip.paused) ||
       ((S.mode === 'episode' || S.mode === 'range') && !full.paused);
     const b = $('#play-btn');
-    b.innerHTML = playing ? '&#10074;&#10074; Pause' : '&#9654; Play / resume episode';
+    b.innerHTML = playing ? '&#10074;&#10074; Pause' : '&#9654; Play episode';
     b.classList.toggle('on', playing);
     const bp = $('#bar-play');
     if (bp) {
@@ -762,7 +763,7 @@
   function zhCardHTML(c) {
     const words = c.words.map((w, wi) =>
       `<button type="button" class="chip" data-w="${wi}"><span class="cn">${esc(w.text)}</span><span class="py">${esc(w.pinyin)}</span></button>`).join('');
-    return `<div class="head"><span class="num">${c.id}</span><div class="body">
+    return `<div class="head"><span class="time">${fmt(c.start)}</span><div class="body">
       <div class="pinyin">${esc(c.pinyin)}</div>
       <div class="hanzi">${esc(c.text)}</div>
       <div class="english">${esc(c.english)}</div>
@@ -775,7 +776,7 @@
   }
 
   function enCardHTML(c) {
-    return `<div class="head"><span class="num">${c.id}</span><div class="body">
+    return `<div class="head"><span class="time">${fmt(c.start)}</span><div class="body">
       <div class="en-text">${esc(c.text)}</div>
       <div class="actions"><button type="button" class="play-card">&#9654; Clip</button></div>
       </div></div>`;
@@ -786,7 +787,7 @@
     const frag = document.createDocumentFragment();
     cs().forEach((c, i) => {
       if (secAt.has(i)) {
-        const h = document.createElement('div');
+        const h = document.createElement('h2');
         h.className = 'section-h';
         h.dataset.full = secAt.get(i).label;  // syncToggles() strips CJK when chars are hidden
         frag.appendChild(h);
@@ -940,6 +941,7 @@
     L.saves.forEach((r) => S.saves.set(skey(r.chunk_id, r.kind, r.text), { id: r.id, kind: r.kind }));
     document.title = `Lesson ${n} - Mandarin Study`;
     $('#lesson-title').textContent = `Lesson ${n}: ${L.title}`;
+    $('#crumb-now').textContent = `Lesson ${n}`;
     full.src = 'data/' + L.audio;
     $('#section-sel').innerHTML = L.sections.map((s, k) =>
       `<option value="${k}" data-full="${esc(s.label)}">${esc(s.label)} (${s.start + 1}-${s.end + 1})</option>`).join('');

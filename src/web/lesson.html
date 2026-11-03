@@ -4,20 +4,33 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Lesson - Mandarin Study</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='7' fill='%23b5452b'/%3E%3C/svg%3E">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M2 4h5M9 14l4-7M14 13l2 3 2-3' fill='none' stroke='%231d5fbf' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="style.css">
 </head>
 <body class="lesson-page">
   <div id="banner-slot"></div>
-  <div class="wrap" id="lesson-root">
-    <div class="lesson-head">
+  <header class="top-bar">
+    <div class="top-in">
+      <a class="brand" href="index.html">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M2 4h5M9 14l4-7M14 13l2 3 2-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Mandarin Study
+      </a>
+      <nav class="crumbs" aria-label="Breadcrumb"><a href="index.html">Lessons</a> / <span id="crumb-now">Lesson</span></nav>
+      <span class="spacer"></span>
+      <button id="theme-toggle" class="ghost" type="button" aria-label="Toggle dark mode">Dark mode</button>
+    </div>
+  </header>
+
+  <main class="wrap" id="lesson-root">
+    <div class="title-row">
       <div>
-        <a href="index.html">&larr; All lessons</a> &middot; <a id="transcript-link" href="transcript.html">Transcript</a>
         <h1 id="lesson-title">Loading...</h1>
-        <div class="muted" id="lesson-stats"></div>
+        <p class="sub" id="lesson-stats"></p>
       </div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap">
-        <button id="theme-toggle" type="button" aria-label="Toggle dark mode">Dark mode</button>
+      <div class="title-actions">
+        <a id="transcript-link" href="transcript.html">Transcript</a>
         <button id="complete-btn" type="button">Mark lesson complete</button>
       </div>
     </div>
@@ -25,7 +38,7 @@
     <div class="toolbar" role="toolbar" aria-label="Playback">
       <div class="row">
         <button id="prev-btn" type="button" title="Previous (Left)">&#9664; Prev</button>
-        <button id="play-btn" type="button" class="play" title="Play / pause (Space)">&#9654; Play / resume episode</button>
+        <button id="play-btn" type="button" class="play" title="Play / pause (Space)">&#9654; Play episode</button>
         <button id="start-btn" type="button" title="Play the whole episode from the beginning">From start</button>
         <button id="next-btn" type="button" title="Next (Right)">Next &#9654;</button>
         <button id="replay-btn" type="button" class="phone-hide" title="Replay (R)">Replay</button>
@@ -36,8 +49,8 @@
         <button id="more-btn" type="button" class="more-only" aria-expanded="false">More</button>
       </div>
       <div class="row secondary">
-        <span class="label">Section</span>
-        <select id="section-sel" aria-label="Section"></select>
+        <span class="label" id="section-label">Section</span>
+        <select id="section-sel" aria-labelledby="section-label"></select>
         <button id="section-btn" type="button">Play section</button>
         <button id="range-btn" type="button" disabled>Play selection</button>
         <button id="clear-sel-btn" type="button" disabled>Clear selection</button>
@@ -55,8 +68,8 @@
     </div>
 
     <div id="transcript" class="transcript"></div>
-    <p class="muted" style="margin-top:24px">Shortcuts: Space play/pause - R replay - L loop - S slow - Left/Right prev/next - M record - 1/2/3 chars/pinyin/English - W save word - T save sentence</p>
-  </div>
+    <p class="footnote">Shortcuts: Space play/pause · R replay · L loop · S slow · Left/Right prev/next · M record · 1/2/3 chars/pinyin/English · W save word · T save sentence</p>
+  </main>
 
   <!-- fixed episode player: seek anywhere across the whole lesson -->
   <div class="playbar" id="playbar" role="region" aria-label="Episode player">
