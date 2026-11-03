@@ -4,7 +4,7 @@ A free, local, open-source tool that turns a Mandarin podcast RSS feed into a se
 listen-and-repeat study site: transcripts, pinyin, local machine translation, loop / slow-down /
 record-and-compare, and Anki flashcard export. Built for speaking practice (Chinese characters can be hidden).
 
-**Demo (placeholder content only):** see the GitHub Pages link in the repo description.
+**Demo (placeholder content only):** https://3uripides.github.io/mandarin-podcast-study/
 
 ## Copyright - read this
 This repo contains **no podcast audio, clips or transcripts**. You point the tool at the public RSS feed

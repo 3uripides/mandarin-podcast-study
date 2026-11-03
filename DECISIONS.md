@@ -78,3 +78,6 @@ Module owners:
 - [pipeline v3] Section labels (code is the truth): 'Section N - <first 5 English words> (m:ss)', or 'Section N - Mandarin practice (m:ss)' when the section has no English. Start time is the first chunk's start.
 - [pipeline v3] clips: each clip folder has clips.sig (hash of the clip plan). A changed plan clears clips/ and wordclips/ before cutting.
 - [pipeline v3] pytest moved from requirements.txt to requirements-dev.txt.
+- PM (final): Pages demo deployed from the `gh-pages` branch (a subtree of `demo/`). To update: `python -m src.build_demo`, commit, then `git subtree split --prefix demo -b t && git push -f origin t:gh-pages`.
+- PM (final): Anki export de-duplicates the same word/sentence saved on several lines (one card per lesson+kind+text). Popover height measured after Save label fill.
+- Agents: all ran on Haiku; no Sonnet upgrades were needed (no agent failed the same task twice).
