@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mandarin Study</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='7' fill='%23b5452b'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="index">
+  <div id="banner-slot"></div>
+  <header class="top wrap">
+    <h1>Mandarin Study</h1>
+    <button id="theme-toggle" type="button" aria-label="Toggle dark mode">Dark mode</button>
+  </header>
+
+  <main class="wrap" id="lesson-list-page">
+    <section class="panel" aria-labelledby="overall-h">
+      <h2 id="overall-h" style="font-size:1.05rem;margin:0 0 8px">Overall progress</h2>
+      <div class="bar" aria-hidden="true"><div id="overall-bar"></div></div>
+      <div class="stats" id="overall-stats"><span class="muted">Loading...</span></div>
+      <p id="continue-slot" class="msg"></p>
+    </section>
+
+    <section class="panel" aria-labelledby="export-h">
+      <h2 id="export-h" style="font-size:1.05rem;margin:0 0 8px">Export to Anki</h2>
+      <div class="export-grid">
+        <label>Kind
+          <select id="ex-kind">
+            <option value="all">Words and sentences</option>
+            <option value="word">Words</option>
+            <option value="sentence">Sentences</option>
+          </select>
+        </label>
+        <label>Part of speech
+          <select id="ex-pos" aria-describedby="ex-pos-hint">
+            <option value="">Any</option>
+            <option value="noun">noun</option>
+            <option value="verb">verb</option>
+            <option value="adj">adj</option>
+            <option value="adv">adv</option>
+            <option value="pron">pron</option>
+            <option value="num">num</option>
+            <option value="measure">measure</option>
+            <option value="prep">prep</option>
+            <option value="conj">conj</option>
+            <option value="particle">particle</option>
+            <option value="other">other</option>
+          </select>
+          <span id="ex-pos-hint" class="muted"></span>
+        </label>
+        <label>Lesson
+          <select id="ex-lesson"><option value="all">All lessons</option></select>
+        </label>
+        <label><input type="checkbox" id="ex-chars"> Characters on card back</label>
+        <button id="ex-go" type="button">Download .apkg</button>
+      </div>
+      <p class="msg muted">Deck: "Mandarin Melnyks", one subdeck per lesson.</p>
+      <p class="msg" id="ex-msg" role="status"></p>
+    </section>
+
+    <h2 style="font-size:1.05rem">Lessons</h2>
+    <ul class="lesson-list" id="lesson-list" aria-live="polite"></ul>
+  </main>
+
+  <script src="shim.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

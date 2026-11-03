@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lesson - Mandarin Study</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='7' fill='%23b5452b'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="lesson-page">
+  <div id="banner-slot"></div>
+  <div class="wrap" id="lesson-root">
+    <div class="lesson-head">
+      <div>
+        <a href="index.html">&larr; All lessons</a>
+        <h1 id="lesson-title">Loading...</h1>
+        <div class="muted" id="lesson-stats"></div>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button id="theme-toggle" type="button" aria-label="Toggle dark mode">Dark mode</button>
+        <button id="complete-btn" type="button">Mark lesson complete</button>
+      </div>
+    </div>
+
+    <div class="toolbar" role="toolbar" aria-label="Playback">
+      <div class="row">
+        <button id="prev-btn" type="button" title="Previous (Left)">&#9664; Prev</button>
+        <button id="play-btn" type="button" class="play" title="Play / pause (Space)">&#9654; Play / resume episode</button>
+        <button id="start-btn" type="button" title="Play the whole episode from the beginning">From start</button>
+        <button id="next-btn" type="button" title="Next (Right)">Next &#9654;</button>
+        <button id="replay-btn" type="button" class="phone-hide" title="Replay (R)">Replay</button>
+        <button id="loop-btn" type="button" class="phone-hide" title="Loop (L)">Loop</button>
+        <button id="slow-btn" type="button" class="phone-hide" title="Slow 0.75x (S)">Slow</button>
+        <button id="rec-btn" type="button" title="Record (M)">Record</button>
+        <button id="cmp-btn" type="button" class="phone-hide" disabled title="Original, then yours">Compare</button>
+        <button id="more-btn" type="button" class="more-only" aria-expanded="false">More</button>
+      </div>
+      <div class="row secondary">
+        <span class="label">Section</span>
+        <select id="section-sel" aria-label="Section"></select>
+        <button id="section-btn" type="button">Play section</button>
+        <button id="range-btn" type="button" disabled>Play selection</button>
+        <button id="clear-sel-btn" type="button" disabled>Clear selection</button>
+      </div>
+      <div class="row secondary">
+        <button id="autopause-btn" type="button" title="Pause after each sentence">Auto-pause</button>
+        <button id="autoadv-btn" type="button" title="Advance to next sentence after clip">Auto-advance</button>
+        <button id="zhonly-btn" type="button" title="Hide English lines">Mandarin lines only</button>
+        <span class="label">Show</span>
+        <button id="chars-btn" type="button" title="Chinese characters (1)">Chinese chars</button>
+        <button id="pinyin-btn" type="button" title="Pinyin (2)">Pinyin</button>
+        <button id="english-btn" type="button" title="English (3)">English</button>
+      </div>
+      <div class="now" id="now-line" aria-live="polite"></div>
+    </div>
+
+    <div id="transcript" class="transcript"></div>
+    <p class="muted" style="margin-top:24px">Shortcuts: Space play/pause - R replay - L loop - S slow - Left/Right prev/next - M record - 1/2/3 chars/pinyin/English - W save word - T save sentence</p>
+  </div>
+
+  <script src="shim.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
