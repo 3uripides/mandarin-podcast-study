@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Transcript - Mandarin Study</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='7' fill='%23b5452b'/%3E%3C/svg%3E">
+  <style>
+    /* Printable transcript. Screen styles first, print rules at the end. */
+    :root {
+      --bg: #fbfaf7; --text: #1d1b17; --muted: #4f4b43; --accent: #a43d24; --line: #d9d3c6; --chip: #efeadf;
+    }
+    @media screen and (prefers-color-scheme: dark) {
+      :root { --bg: #161513; --text: #ece8df; --muted: #aaa499; --accent: #ef8a6e; --line: #35332e; --chip: #2c2a26; }
+    }
+    @page { size: A4; margin: 16mm 14mm; }
+    * { box-sizing: border-box; }
+    html, body { background: var(--bg); color: var(--text); margin: 0; }
+    body {
+      font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", "Noto Sans SC", SimSun, system-ui, sans-serif;
+      font-size: 16px; line-height: 1.5; padding: 16px; max-width: 820px; margin: 0 auto;
+    }
+    a { color: var(--accent); }
+    button, input { font: inherit; color: inherit; }
+    button { background: var(--chip); border: 1px solid var(--line); border-radius: 8px; padding: 8px 14px; min-height: 40px; cursor: pointer; }
+    header h1 { font-size: 1.4rem; margin: 6px 0 2px; }
+    header .sub { color: var(--muted); font-size: .95rem; }
+    .controls { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; margin: 14px 0 18px; padding: 10px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .controls label { display: flex; gap: 6px; align-items: center; min-height: 32px; }
+    .hint { color: var(--muted); font-size: .9rem; }
+    h2.sec {
+      font-size: .95rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted);
+      margin: 22px 0 6px; border-bottom: 1px solid var(--line); padding-bottom: 3px; break-after: avoid;
+    }
+    .line { display: flex; gap: 12px; align-items: flex-start; padding: 6px 0; break-inside: avoid; }
+    .ts { flex: 0 0 3.6em; color: var(--muted); font-variant-numeric: tabular-nums; font-size: .9rem; padding-top: 4px; }
+    .line .body { flex: 1; min-width: 0; }
+    .line.zh { border-left: 3px solid var(--accent); padding-left: 10px; }
+    .hanzi { font-size: 1.5rem; line-height: 1.35; }
+    .py { font-size: 1.15rem; color: var(--accent); font-weight: 500; }
+    .en { color: var(--muted); }
+    .en-text { font-size: 1rem; font-style: italic; }
+    /* show/hide from the checkboxes */
+    .hide-chars .hanzi { display: none; }
+    .hide-py .py { display: none; }
+    .hide-en .en { display: none; }
+    .hide-ts .ts { display: none; }
+    .empty { color: var(--muted); }
+
+    @media print {
+      :root { --bg: #fff; --text: #000; --muted: #333; --accent: #000; --line: #999; --chip: #fff; }
+      html, body { background: #fff; color: #000; }
+      body { padding: 0; max-width: none; font-size: 11pt; line-height: 1.4; }
+      .no-print { display: none !important; }
+      .line.zh { border-left-color: #000; }
+      .py { color: #000; }
+      .en-text { font-style: normal; }
+      .hanzi { font-size: 15pt; }
+      .py { font-size: 11pt; }
+      .ts { font-size: 9pt; }
+      h2.sec { color: #000; border-bottom-color: #000; }
+      a { color: #000; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="sub no-print"><a id="back" href="index.html">&larr; All lessons</a></div>
+    <h1 id="title">Loading...</h1>
+    <div class="sub" id="sub"></div>
+  </header>
+
+  <div class="controls no-print" role="group" aria-label="Transcript options">
+    <label><input type="checkbox" id="c-chars" checked> Chinese characters</label>
+    <label><input type="checkbox" id="c-py" checked> Pinyin</label>
+    <label><input type="checkbox" id="c-en" checked> English translation</label>
+    <label><input type="checkbox" id="c-ts" checked> Timestamps</label>
+    <button id="pdf-btn" type="button">Download PDF</button>
+    <span class="hint">Then, in the print dialog, choose &ldquo;Save as PDF&rdquo; as the destination.</span>
+  </div>
+
+  <main id="tx" aria-live="polite"></main>
+
+  <script src="transcript.js"></script>
+</body>
+</html>

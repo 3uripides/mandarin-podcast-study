@@ -88,13 +88,17 @@ header.top h1 { font-size: 1.3rem; margin: 0; }
   background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px;
 }
 .lesson-card.off { opacity: .55; }
+.row-links { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; justify-content: flex-end; }
 .lesson-card .title { font-weight: 600; }
 .lesson-card .meta { font-size: .9rem; color: var(--muted); }
 .badge { font-size: .8rem; padding: 2px 8px; border-radius: 99px; background: var(--chip); white-space: nowrap; }
 .badge.completed { background: var(--ok); color: #fff; }
 .badge.in-progress { background: var(--accent-soft); }
 .export-grid { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; }
-.export-grid label { display: flex; gap: 6px; align-items: center; }
+.export-grid label { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; min-width: 0; max-width: 100%; }
+.export-grid select, .export-grid button { max-width: 100%; }
+.export-grid select { min-width: 0; }
+.panel { min-width: 0; }
 .msg { margin-top: 8px; font-size: .95rem; }
 .msg.err { color: var(--accent); }
 
@@ -156,6 +160,39 @@ header.top h1 { font-size: 1.3rem; margin: 0; }
 .popover .big { font-size: 1.4rem; }
 .popover .py { font-size: 1.05rem; color: var(--accent); }
 .popover .actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+
+/* lesson play bar (fixed at bottom) */
+body.lesson-page { padding-bottom: 150px; }
+.playbar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+  background: var(--panel); border-top: 1px solid var(--line);
+  box-shadow: 0 -4px 16px rgba(0,0,0,.12); padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
+}
+.pb-row { display: flex; align-items: center; gap: 8px; max-width: 960px; margin: 0 auto; }
+.pb-row button { min-height: 40px; min-width: 40px; padding: 4px 10px; }
+.pb-play { font-size: 1.1rem; }
+.pb-time { font-variant-numeric: tabular-nums; font-size: .95rem; white-space: nowrap; }
+.pb-rem { font-variant-numeric: tabular-nums; font-size: .95rem; color: var(--muted); white-space: nowrap; margin-left: auto; }
+.pb-seek {
+  position: relative; max-width: 960px; margin: 4px auto 0; height: 26px; cursor: pointer;
+  touch-action: none; user-select: none;
+}
+.pb-track { position: absolute; left: 0; right: 0; top: 10px; height: 6px; background: var(--chip); border-radius: 3px; }
+.pb-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: var(--accent); border-radius: 3px; }
+.pb-thumb {
+  position: absolute; top: 3px; width: 16px; height: 16px; margin-left: -8px; border-radius: 50%;
+  background: var(--accent); border: 2px solid var(--panel); box-shadow: 0 1px 3px rgba(0,0,0,.3);
+}
+.pb-ticks { position: absolute; inset: 0; pointer-events: none; }
+.tick { position: absolute; top: 0; height: 26px; width: 0; border-left: 1px solid var(--muted); opacity: .45; }
+.tick.zh { top: 16px; height: 10px; border-left-color: var(--accent); opacity: .7; }
+.tick.sec { height: 26px; border-left: 2px solid var(--text); opacity: .55; }
+.pb-seek:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 4px; }
+@media (max-width: 600px) {
+  body.lesson-page { padding-bottom: 130px; }
+  .pb-row button { min-width: 44px; min-height: 44px; }
+  .pb-time { font-size: .85rem; }
+}
 
 /* mobile */
 .more-only { display: none; }

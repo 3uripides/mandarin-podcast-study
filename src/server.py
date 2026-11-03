@@ -219,12 +219,54 @@ def create_app(data_dir=DEFAULT_DATA):
         return jsonify({"deleted": cur.rowcount})
 
     # ---- Anki export ----------------------------------------------------
+    def vocab_path(n):
+        return os.path.join(data_dir, "lessons", f"{n:03d}", "vocab.json")
+
+    def load_vocab(n):
+        p = vocab_path(n)
+        if not os.path.isfile(p):
+            return None
+        with open(p, encoding="utf-8") as f:
+            return json.load(f)
+
+    def auto_items(lesson_nos, kind, pos):
+        """Export items from vocab.json files (auto deck), same shape as saves rows."""
+        items = []
+        for n in lesson_nos:
+            v = load_vocab(n)
+            if v is None:
+                continue
+            ln = int(v.get("lesson", n))
+            if kind in ("all", "word"):
+                for w in v.get("words", []):
+                    if pos and w.get("pos") != pos:
+                        continue
+                    items.append({"lesson": ln, "chunk_id": w.get("chunk_id") or 0,
+                                  "kind": "word", "text": w["text"],
+                                  "pinyin": w.get("pinyin", ""), "english": w.get("english", ""),
+                                  "pos": w.get("pos", ""), "clip": w.get("clip")})
+            if kind in ("all", "sentence") and not pos:
+                for s in v.get("sentences", []):
+                    items.append({"lesson": ln, "chunk_id": s.get("chunk_id") or 0,
+                                  "kind": "sentence", "text": s["text"],
+                                  "pinyin": s.get("pinyin", ""), "english": s.get("english", ""),
+                                  "pos": "", "clip": s.get("clip")})
+        return items
+
+    @app.get("/api/lesson/<int:n>/vocab")
+    def api_lesson_vocab(n):
+        v = load_vocab(n)
+        if v is None:
+            return error("no vocab.json for this lesson", 404)
+        return jsonify(v)
+
     @app.get("/api/export.apkg")
     def api_export():
         kind = request.args.get("kind", "all")
         pos = request.args.get("pos", "")
         lesson = request.args.get("lesson", "")
         characters = request.args.get("characters", "") in ("1", "true", "yes", "on")
+        auto = request.args.get("auto", "") in ("1", "true", "yes", "on")
         if kind not in ("all", "word", "sentence"):
             return error("kind must be word|sentence|all")
         if pos and pos not in POS_TAGS:
@@ -237,20 +279,31 @@ def create_app(data_dir=DEFAULT_DATA):
                 lesson_no = int(lesson)
             except ValueError:
                 return error("lesson must be an integer or all")
-        where, params = [], []
-        if pos:  # POS exists only on words, so this is words-only
-            where.append("kind='word' AND pos=?")
-            params.append(pos)
-        elif kind != "all":
-            where.append("kind=?")
-            params.append(kind)
-        if lesson_no is not None:
-            where.append("lesson=?")
-            params.append(lesson_no)
-        sql = "SELECT * FROM saves" + (" WHERE " + " AND ".join(where) if where else "")
-        items = [dict(r) for r in db().execute(sql + " ORDER BY lesson, chunk_id, id", params)]
+        if auto:
+            # Auto deck: built from vocab.json, no manual saves needed.
+            if lesson_no is not None:
+                if load_vocab(lesson_no) is None:
+                    return error("no vocab.json for lesson %d" % lesson_no, 404)
+                items = auto_items([lesson_no], kind, pos)
+            else:
+                items = auto_items([int(e["lesson"]) for e in read_index()], kind, pos)
+            label = "auto"
+        else:
+            where, params = [], []
+            if pos:  # POS exists only on words, so this is words-only
+                where.append("kind='word' AND pos=?")
+                params.append(pos)
+            elif kind != "all":
+                where.append("kind=?")
+                params.append(kind)
+            if lesson_no is not None:
+                where.append("lesson=?")
+                params.append(lesson_no)
+            sql = "SELECT * FROM saves" + (" WHERE " + " AND ".join(where) if where else "")
+            items = [dict(r) for r in db().execute(sql + " ORDER BY lesson, chunk_id, id", params)]
+            label = ""
         if not items:
-            return error("no saves match these filters")
+            return error("no %s match these filters" % ("vocab" if auto else "saves"))
         try:
             from src import anki_export  # lazy: built by the Anki agent
             export_apkg = anki_export.export_apkg
@@ -258,7 +311,8 @@ def create_app(data_dir=DEFAULT_DATA):
             return error("Anki export module not available yet", 501)
         out_dir = os.path.join(data_dir, "exports")
         os.makedirs(out_dir, exist_ok=True)
-        name = "mandarin-{}-{}-{}.apkg".format(
+        name = "mandarin-{}{}-{}-{}.apkg".format(
+            label + "-" if label else "",
             re.sub(r"\W+", "", pos or kind) or "all",
             lesson if lesson and lesson != "all" else "all",
             datetime.now().strftime("%Y%m%d-%H%M%S"))

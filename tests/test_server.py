@@ -102,3 +102,11 @@ def test_practiced_count_counts_only_mandarin(client):
 def test_favicon_is_inline(client):
     html = client.get("/").get_data(as_text=True)
     assert 'rel="icon"' in html and "data:" in html
+
+
+def test_transcript_page_served_and_lesson_has_all_lines(client):
+    r = client.get("/transcript.html")
+    assert r.status_code == 200 and b"transcript.js" in r.data
+    assert client.get("/transcript.js").status_code == 200
+    lesson = client.get("/api/lesson/900").get_json()
+    assert len(lesson["chunks"]) == 5  # transcript shows every chunk, English included

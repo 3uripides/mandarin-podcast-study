@@ -80,13 +80,14 @@ def write_tone_lesson(data_dir, lesson_no, title, chunks, sections, dur=1.5):
 
 def build_demo():
     os.makedirs(DEMO, exist_ok=True)
-    for name in ("index.html", "lesson.html", "app.js", "style.css"):
+    for name in ("index.html", "lesson.html", "transcript.html", "app.js", "transcript.js", "style.css"):
         src = os.path.join(WEB, name)
         dst = os.path.join(DEMO, name)
-        if name == "index.html" or name == "lesson.html":
+        if name.endswith(".html"):
+            # every page that talks to /api gets the fake API shim before its script
             html = open(src, encoding="utf-8").read()
-            tag = '<script src="app.js"'
-            assert tag in html, f"{name} must load app.js with a plain script tag"
+            tag = '<script src="%s"' % ("app.js" if name != "transcript.html" else "transcript.js")
+            assert tag in html, f"{name} must load its script with a plain script tag"
             html = html.replace(tag, '<script src="shim.js"></script>\n  ' + tag, 1)
             open(dst, "w", encoding="utf-8").write(html)
         else:

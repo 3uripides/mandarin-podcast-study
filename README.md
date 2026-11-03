@@ -44,6 +44,12 @@ note types *Mandarin Word* and *Mandarin Sentence*, each with a Listen card (aud
 Tags: `word`/`sentence`, `pos::verb` etc., `lesson::001`. Export everything saved or a subset (kind / part of speech / lesson)
 from the lesson list page, or via CLI: `python -m src.anki_export --db data/progress.db --data data --out out.apkg --kind word --pos verb`.
 
+**Automatic lesson decks (no saving needed).** Each processed lesson gets `data/lessons/NNN/vocab.json`, built
+by `src/pipeline/vocab.py` as the last pipeline step: unique words (CC-CEDICT-glossed first) and unique Mandarin
+sentences. Use "Download lesson deck" or "Download all lessons deck" on the lesson list page, or
+`/api/export.apkg?auto=1&lesson=1` (or `lesson=all`, with optional `kind`, `pos`, `characters=1`). A hand-written
+`vocab.json` with `"generated_by": "curated"` is never overwritten by the pipeline.
+
 ## Known limits
 Whisper `small` misses some Mandarin words (use a bigger model for better accuracy); machine translations of short phrases can be rough;
 sections are a best-effort heuristic. Recording needs microphone permission in the browser.

@@ -59,11 +59,84 @@
       <p class="msg" id="ex-msg" role="status"></p>
     </section>
 
+    <section class="panel" aria-labelledby="auto-h" id="auto-panel">
+      <h2 id="auto-h" style="font-size:1.05rem;margin:0 0 8px">Automatic lesson decks</h2>
+      <p class="msg muted">Built from each lesson's words and sentences. No saving needed.
+        Uses the "Characters on card back" option above.</p>
+      <div class="export-grid">
+        <label>Lesson
+          <select id="auto-lesson"><option value="">(processed lessons)</option></select>
+        </label>
+        <button id="auto-one" type="button" disabled>Download lesson deck</button>
+        <button id="auto-all" type="button" disabled>Download all lessons deck</button>
+      </div>
+      <p class="msg" id="auto-msg" role="status"></p>
+    </section>
+
     <h2 style="font-size:1.05rem">Lessons</h2>
     <ul class="lesson-list" id="lesson-list" aria-live="polite"></ul>
   </main>
 
   <script src="shim.js"></script>
   <script src="app.js"></script>
+  <script>
+    // Auto decks: separate from app.js so the lesson list code stays untouched.
+    (function () {
+      var sel = document.getElementById("auto-lesson");
+      var one = document.getElementById("auto-one");
+      var all = document.getElementById("auto-all");
+      var msg = document.getElementById("auto-msg");
+      var panel = document.getElementById("auto-panel");
+
+      function say(text) { msg.textContent = text; }
+
+      function download(params, label) {
+        var chars = document.getElementById("ex-chars");
+        var qs = new URLSearchParams(Object.assign({ auto: "1" }, params));
+        if (chars && chars.checked) qs.set("characters", "1");
+        say("Building " + label + "...");
+        return fetch("api/export.apkg?" + qs.toString()).then(function (r) {
+          if (!r.ok) return r.json().then(function (j) { throw new Error(j.error || r.status); },
+                                          function () { throw new Error("HTTP " + r.status); });
+          var cd = r.headers.get("Content-Disposition") || "";
+          var m = /filename="?([^";]+)"?/.exec(cd);
+          return r.blob().then(function (b) { return { blob: b, name: m ? m[1] : "mandarin-auto.apkg" }; });
+        }).then(function (f) {
+          var a = document.createElement("a");
+          a.href = URL.createObjectURL(f.blob);
+          a.download = f.name;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          say("Downloaded " + f.name + ".");
+        }).catch(function (e) { say("Export failed: " + e.message); });
+      }
+
+      fetch("api/lessons").then(function (r) { return r.json(); }).then(function (data) {
+        var ready = data.lessons.filter(function (l) { return l.processed; });
+        if (!ready.length) { say("No processed lessons yet."); return; }
+        sel.innerHTML = "";
+        ready.forEach(function (l) {
+          var o = document.createElement("option");
+          o.value = l.lesson;
+          o.textContent = l.lesson + " - " + (l.title || "");
+          sel.appendChild(o);
+        });
+        one.disabled = false;
+        all.disabled = false;
+      }).catch(function () {
+        // no API (e.g. the static demo): hide the panel rather than show dead buttons
+        panel.hidden = true;
+      });
+
+      one.addEventListener("click", function () {
+        var n = sel.value;
+        if (n) download({ lesson: n }, "lesson " + n + " deck");
+      });
+      all.addEventListener("click", function () {
+        download({ lesson: "all" }, "all lessons deck");
+      });
+    })();
+  </script>
 </body>
 </html>

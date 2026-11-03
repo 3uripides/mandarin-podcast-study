@@ -2,6 +2,7 @@
    on GitHub Pages. Loaded before app.js by src/build_demo.py. Placeholder content only. */
 (function () {
   'use strict';
+  window.MQ_DEMO = true;  // app.js hides server-only links (Deck download) when set
   const realFetch = window.fetch.bind(window);
   const KEY = 'demo.state';
 

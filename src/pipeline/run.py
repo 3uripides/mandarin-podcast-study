@@ -6,7 +6,7 @@ import argparse
 import json
 import os
 
-from . import clips, chunk, download, enrich, transcribe
+from . import clips, chunk, download, enrich, transcribe, vocab
 from .paths import DATA, episode_mp3, lesson_dir
 
 
@@ -35,6 +35,8 @@ def main(n):
     lessons = download.parse_feed()
     download.write_index(lessons)
     print("[run] index.json updated")
+
+    vocab.build_vocab(n)
     return lesson
 
 
